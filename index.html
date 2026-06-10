@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACE Lab | Applied & Computational Electromagnetics Lab, KNU</title>
+    <meta name="description" content="강원대학교 응용·계산 전자기학 연구실(ACE Lab). 전자기 수치해석, 스텔스/RCS, 반도체 EMC 연구.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231d4ed8'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white'>⚡</text></svg>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Pretendard Variable"', 'Pretendard', '-apple-system', 'system-ui', 'sans-serif'] },
+                    colors: { navy: { 950: '#0a1228', 900: '#0f1d3d', 800: '#16295c' } }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; }
+        .expand-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s ease; }
+        .expand-list > div { overflow: hidden; }
+        .expand-list.expanded { grid-template-rows: 1fr; }
+        .nav-link { position: relative; padding-bottom: 4px; }
+        .nav-link::after { content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: #1d4ed8; transition: width .25s; }
+        .nav-link:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-white text-slate-800 antialiased">
+
+    <!-- ===================== NAV ===================== -->
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex justify-between items-center">
+            <button onclick="showPage('home')" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-blue-700 rounded-lg flex items-center justify-center text-white">
+                    <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                </div>
+                <div class="text-left leading-tight">
+                    <span class="block font-extrabold text-lg tracking-tight text-slate-900">ACE LAB</span>
+                    <span class="block text-[10px] text-slate-400 font-medium tracking-wide">Kangwon National University</span>
+                </div>
+            </button>
+            <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                <button onclick="showPage('home')" class="nav-link hover:text-blue-700 transition-colors">Home</button>
+                <button onclick="showPage('home','research')" class="nav-link hover:text-blue-700 transition-colors">Research</button>
+                <button onclick="showPage('home','projects')" class="nav-link hover:text-blue-700 transition-colors">Projects</button>
+                <button onclick="showPage('home','people')" class="nav-link hover:text-blue-700 transition-colors">People</button>
+                <button onclick="showPage('publications')" class="nav-link hover:text-blue-700 transition-colors">Publications</button>
+                <button onclick="showPage('home','contact')" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors">Contact</button>
+            </div>
+            <button onclick="toggleMenu()" class="md:hidden p-2 text-slate-600" aria-label="메뉴 열기">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 bg-white px-5 py-3 flex flex-col gap-1 text-sm font-semibold text-slate-700">
+            <button onclick="showPage('home')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">Home</button>
+            <button onclick="showPage('home','research')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">Research</button>
+            <button onclick="showPage('home','projects')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">Projects</button>
+            <button onclick="showPage('home','people')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">People</button>
+            <button onclick="showPage('publications')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">Publications</button>
+            <button onclick="showPage('home','contact')" class="text-left py-2.5 px-2 rounded-lg hover:bg-slate-50">Contact</button>
+        </div>
+    </nav>
+
+    <!-- ===================== PAGE 1 : HOME ===================== -->
+    <div id="main-content">
+
+        <!-- Hero -->
+        <header id="home" class="relative overflow-hidden bg-navy-950 text-white">
+            <div class="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-blue-900"></div>
+            <!-- EM wave motif -->
+            <svg class="absolute -right-24 -bottom-48 w-[640px] h-[640px] opacity-[0.08] pointer-events-none" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="320" cy="320" r="80" stroke="white" stroke-width="1.5"/>
+                <circle cx="320" cy="320" r="150" stroke="white" stroke-width="1.2"/>
+                <circle cx="320" cy="320" r="220" stroke="white" stroke-width="1"/>
+                <circle cx="320" cy="320" r="290" stroke="white" stroke-width="0.8"/>
+                <circle cx="320" cy="320" r="6" fill="white"/>
+            </svg>
+            <div class="relative max-w-6xl mx-auto px-5 md:px-8 py-24 md:py-32">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 rounded-full bg-white/10 border border-white/15 text-blue-100 text-xs font-semibold tracking-wide">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                    Applied &amp; Computational Electromagnetics Laboratory
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.15] tracking-tight mb-6">
+                    전자기 수치해석으로<br>
+                    <span class="text-sky-400">스텔스와 EMC</span>의 한계를 넘다
+                </h1>
+                <p class="text-lg md:text-xl text-slate-300 leading-relaxed max-w-2xl mb-10 font-light">
+                    ACE Lab은 초고속 전자기 해석 원천 기술을 기반으로<br class="hidden md:block">
+                    스텔스 플랫폼의 저피탐 설계와 차세대 반도체 시스템의 EMC 난제를 해결합니다.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="showPage('home','research')" class="bg-white text-slate-900 px-7 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition-colors flex items-center gap-2">
+                        연구 분야 보기 <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="showPage('publications')" class="border border-white/25 text-white px-7 py-3.5 rounded-xl font-bold hover:bg-white/10 transition-colors flex items-center gap-2">
+                        Publications <i data-lucide="book-open" class="w-4 h-4"></i>
+                    </button>
+                    <a href="https://scholar.google.co.kr/citations?user=im_gAZoAAAAJ&hl=ko" target="_blank" rel="noopener" class="border border-white/25 text-white px-7 py-3.5 rounded-xl font-bold hover:bg-white/10 transition-colors flex items-center gap-2">
+                        Google Scholar <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats strip -->
+        <section class="max-w-6xl mx-auto px-5 md:px-8 -mt-10 relative z-10">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100">
+                    <div class="bg-white p-6 text-center">
+                        <p class="text-3xl font-extrabold text-blue-700">7</p>
+                        <p class="text-xs font-semibold text-slate-500 mt-1.5">International Journals<br>국제 학술지</p>
+                    </div>
+                    <div class="bg-white p-6 text-center">
+                        <p class="text-3xl font-extrabold text-blue-700">10</p>
+                        <p class="text-xs font-semibold text-slate-500 mt-1.5">Int'l Conferences<br>국제 학회 발표</p>
+                    </div>
+                    <div class="bg-white p-6 text-center">
+                        <p class="text-3xl font-extrabold text-blue-700">3</p>
+                        <p class="text-xs font-semibold text-slate-500 mt-1.5">Patents<br>특허 (등록·출원)</p>
+                    </div>
+                    <div class="bg-white p-6 text-center">
+                        <p class="text-3xl font-extrabold text-blue-700">12</p>
+                        <p class="text-xs font-semibold text-slate-500 mt-1.5">Research Projects<br>연구 과제</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research -->
+        <section id="research" class="scroll-mt-24 max-w-6xl mx-auto px-5 md:px-8 pt-24 md:pt-32">
+            <p class="text-xs font-bold text-blue-700 tracking-[0.25em] uppercase mb-3">Research</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-4">연구 분야</h2>
+            <p class="text-slate-500 max-w-2xl mb-12">전자기 수치해석 알고리즘이라는 공통 기반 위에서, 국방 스텔스 기술과 반도체 EMC라는 두 응용 축을 함께 연구합니다.</p>
+            <div class="grid md:grid-cols-3 gap-5">
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="sigma" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Computational EM</h3>
+                    <p class="text-xs font-semibold text-blue-700 mb-4">전자기 수치해석</p>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">Method of Moments(MoM), Macro Basis Function(MBF) 및 다중극자 전개 기반의 초고속 전자기 해석 알고리즘 연구</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">MoM</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">MBF</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Fast Solver</span>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="radar" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Defense &amp; Stealth</h3>
+                    <p class="text-xs font-semibold text-blue-700 mb-4">국방 · 저피탐 기술</p>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">전투기/대형 플랫폼 RCS 분석 및 FSS(Frequency Selective Surface) 기반 레이돔 설계 등 저피탐 기술 고도화</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">RCS</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">FSS Radome</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Low-Observable</span>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="cpu" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Semiconductor EMC</h3>
+                    <p class="text-xs font-semibold text-blue-700 mb-4">반도체 전자기 적합성</p>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">삼성전자 SSD 개발 경험 기반, 차세대 SSD 및 On-chip 레벨 전자기 적합성(EMI/ESD) 강건 설계 솔루션 제안</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">SSD</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">EMI / ESD</span>
+                        <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">On-chip</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section id="projects" class="scroll-mt-24 max-w-6xl mx-auto px-5 md:px-8 pt-24 md:pt-32">
+            <p class="text-xs font-bold text-blue-700 tracking-[0.25em] uppercase mb-3">Projects</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-4">연구 과제</h2>
+            <p class="text-slate-500 max-w-2xl mb-12">국방과학연구소·산업체·EU 국제공동연구를 아우르는 수행 이력입니다. 지도교수가 박사과정 및 박사후연구원 기간에 참여한 과제를 포함합니다.</p>
+
+            <!-- Featured: ADD 특화연구실 -->
+            <div class="bg-navy-950 text-white rounded-2xl p-7 md:p-9 mb-8 relative overflow-hidden">
+                <svg class="absolute -right-16 -top-24 w-[320px] h-[320px] opacity-[0.07] pointer-events-none" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="160" cy="160" r="60" stroke="white" stroke-width="1.5"/>
+                    <circle cx="160" cy="160" r="110" stroke="white" stroke-width="1"/>
+                    <circle cx="160" cy="160" r="155" stroke="white" stroke-width="0.8"/>
+                </svg>
+                <div class="relative flex flex-col md:flex-row md:items-center gap-5">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                        <i data-lucide="shield" class="w-6 h-6 text-sky-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-sky-400/15 text-sky-300 px-2.5 py-1 rounded-md">국방과학연구소 (ADD)</span>
+                            <span class="text-[11px] font-bold bg-white/10 text-slate-300 px-2.5 py-1 rounded-md">수행 완료</span>
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold">스텔스 대형 플랫폼 전파해석 특화연구실</h3>
+                        <p class="text-sm text-slate-400 mt-1">Specialized Research Laboratory for EM-Wave Analysis of Large Stealth Platforms</p>
+                    </div>
+                    <p class="text-sm text-slate-300 font-semibold shrink-0">2025. 01 ~ 2026. 03</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-x-10">
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2020–2022</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">H2020 European Research Project &ldquo;M-ONE&rdquo;</p>
+                        <p class="text-xs text-slate-400 mt-0.5">European Commission</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2019–2020</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Macro Basis Function Method Using Static Multipoles for Objects with Extremely Fine Mesh</p>
+                        <p class="text-xs text-slate-400 mt-0.5">National Research Foundation of Korea (NRF)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2019–2020</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Metamaterials Antenna for Ultra-High-Field MRI (&ldquo;M-CUBE&rdquo;)</p>
+                        <p class="text-xs text-slate-400 mt-0.5">European Commission</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2017–2018</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">FSS Radome Development for RCS Reduction of Fighter Aircraft</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Korea Aerospace Industries (KAI)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2017–2018</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Canopy Material and Coating Technology for RCS Reduction of Fighter Aircraft</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Korea Aerospace Industries (KAI)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2017–2018</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">RCS Characteristics by Numerical Analysis and Stealth-Target Scaling-Model Measurement</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Hanwha Systems</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2017–2018</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">EMP Vulnerability Analysis and Protection Technology of Power Systems</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Korea Electric Power Corporation (KEPCO)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2015–2016</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">VHF / L-Band Stealth-Target RCS Characterization Study</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Hanwha Systems</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2013–2015</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Electromagnetic Design of Hybrid Composite Structure with FSS</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Agency for Defense Development (ADD)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2012–2017</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Design Method of Frequency Selective Structure of Curved Shape</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Agency for Defense Development (ADD)</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 py-4 border-b border-slate-100">
+                    <span class="w-24 shrink-0 text-sm font-bold text-blue-700">2012–2015</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 leading-snug">Safety Evaluation Technology of Advanced Safety Automobile</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Ministry of Land, Infrastructure and Transport (MOLIT)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PI -->
+        <section id="pi" class="scroll-mt-24 max-w-6xl mx-auto px-5 md:px-8 pt-24 md:pt-32">
+            <p class="text-xs font-bold text-blue-700 tracking-[0.25em] uppercase mb-3">Principal Investigator</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-12">지도교수</h2>
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden md:grid md:grid-cols-[300px,1fr]">
+                <div class="bg-slate-50 p-8 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-200">
+                    <img src="https://i.ibb.co/pBXjjqcD/image.jpg" alt="박찬선 교수" loading="lazy"
+                         class="w-44 h-44 object-cover rounded-2xl shadow-md mb-5">
+                    <h3 class="text-xl font-bold text-slate-900">박찬선</h3>
+                    <p class="text-sm text-slate-500 font-medium mt-0.5">Chan-Sun Park, Ph.D.</p>
+                    <p class="text-xs font-semibold text-blue-700 mt-2">조교수 · Assistant Professor</p>
+                    <div class="flex gap-2 mt-5">
+                        <a href="mailto:cspark@kangwon.ac.kr" class="w-9 h-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-blue-700 hover:border-blue-300 transition-colors" title="이메일">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        </a>
+                        <a href="https://scholar.google.co.kr/citations?user=im_gAZoAAAAJ&hl=ko" target="_blank" rel="noopener" class="w-9 h-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-blue-700 hover:border-blue-300 transition-colors" title="Google Scholar">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-8 md:p-10">
+                    <ul class="space-y-5">
+                        <li class="flex gap-5">
+                            <span class="w-28 shrink-0 text-sm font-bold text-blue-700 pt-0.5">2024 ~ 현재</span>
+                            <div>
+                                <p class="font-semibold text-slate-900">강원대학교 IT대학 전자공학과 조교수</p>
+                                <p class="text-sm text-slate-500 mt-0.5">Applied &amp; Computational EM Lab (ACE Lab) 운영</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <span class="w-28 shrink-0 text-sm font-bold text-slate-400 pt-0.5">2022 ~ 2024</span>
+                            <div>
+                                <p class="font-semibold text-slate-900">삼성전자 메모리사업부 Staff Engineer</p>
+                                <p class="text-sm text-slate-500 mt-0.5">메모리 제품(SSD) EMC · SI/PI 강건 설계</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <span class="w-28 shrink-0 text-sm font-bold text-slate-400 pt-0.5">2019 ~ 2022</span>
+                            <div>
+                                <p class="font-semibold text-slate-900">UCLouvain (Belgium) Postdoctoral Researcher</p>
+                                <p class="text-sm text-slate-500 mt-0.5">MRI 안테나 수치 설계 · 다중극 가속 · FEM&ndash;IE 하이브리드</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <span class="w-28 shrink-0 text-sm font-bold text-slate-400 pt-0.5">2012 ~ 2019</span>
+                            <div>
+                                <p class="font-semibold text-slate-900">연세대학교 전기전자공학 박사</p>
+                                <p class="text-sm text-slate-500 mt-0.5">Ph.D., Electrical &amp; Electronic Engineering</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <span class="w-28 shrink-0 text-sm font-bold text-slate-400 pt-0.5">2008 ~ 2012</span>
+                            <div>
+                                <p class="font-semibold text-slate-900">연세대학교 전기전자공학 학사</p>
+                                <p class="text-sm text-slate-500 mt-0.5">B.Sc., Electrical &amp; Electronic Engineering</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="mt-8 pt-7 border-t border-slate-100">
+                        <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-3">Research Interests</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">전자기 수치해석 (MoM · CBFM)</span>
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">안테나 · 배열 시스템</span>
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">EMC (EMI · ESD · SI/PI)</span>
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">메타표면</span>
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">초고자기장 MRI 안테나</span>
+                            <span class="text-[11px] font-semibold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">RF 회로 · 시스템</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-3 mt-6">Teaching</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">마이크로파공학</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">전자기학</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">회로이론</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">전자회로실험</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">신호 및 시스템</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">디지털공학</span>
+                            <span class="text-[11px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">레이다시스템</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- People -->
+        <section id="people" class="scroll-mt-24 max-w-6xl mx-auto px-5 md:px-8 pt-24 md:pt-32">
+            <p class="text-xs font-bold text-blue-700 tracking-[0.25em] uppercase mb-3">Members</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-12">구성원</h2>
+
+            <h3 class="text-sm font-bold text-slate-400 tracking-widest uppercase mb-6">Graduate Researchers · 대학원</h3>
+            <div class="grid md:grid-cols-2 gap-5 mb-14">
+                <div class="bg-white border border-slate-200 rounded-2xl p-7 flex gap-6 items-start hover:border-blue-300 hover:shadow-lg transition-all">
+                    <img src="https://i.ibb.co/Kp67PTnt/202110634.jpg" alt="장민혁" loading="lazy" class="w-24 h-24 object-cover rounded-xl shrink-0">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900">장민혁</h4>
+                        <p class="text-xs font-semibold text-blue-700 mt-0.5 mb-3">학·석사 통합과정 · Integrated BS-MS</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">루넨버그 렌즈 기반 고정밀 RCS 증강 기술 및 비행체 전파 교란 메커니즘 분석 연구</p>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-7 flex gap-6 items-start hover:border-blue-300 hover:shadow-lg transition-all">
+                    <img src="https://i.ibb.co/kgTvCm2z/202110634.jpg" alt="양규민" loading="lazy" class="w-24 h-24 object-cover rounded-xl shrink-0">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900">양규민</h4>
+                        <p class="text-xs font-semibold text-blue-700 mt-0.5 mb-3">학·석사 통합과정 · Integrated BS-MS</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">극초음속 비행 환경에서의 플라즈마 쉬스(Plasma Sheath) 투과성 및 RCS 영향성 분석 연구</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-400 tracking-widest uppercase mb-6">Undergraduate Interns · 학부연구생</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white border border-slate-200 rounded-2xl p-7 text-center hover:border-blue-300 hover:shadow-lg transition-all">
+                    <img src="https://i.ibb.co/HDSQNkMC/202110634.jpg" alt="김현우" loading="lazy" class="w-20 h-20 object-cover rounded-xl mx-auto mb-4">
+                    <h4 class="font-bold text-slate-900">김현우</h4>
+                    <p class="text-[11px] font-semibold text-blue-700 mt-0.5 mb-3">Research Intern</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">차세대 고성능 SSD 패키지의 기계적 공진 특성에 따른 EMC/ESD 강건 설계 최적화</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-7 text-center hover:border-blue-300 hover:shadow-lg transition-all">
+                    <img src="https://i.ibb.co/6RjjpXrL/202110634.jpg" alt="권서환" loading="lazy" class="w-20 h-20 object-cover rounded-xl mx-auto mb-4">
+                    <h4 class="font-bold text-slate-900">권서환</h4>
+                    <p class="text-[11px] font-semibold text-blue-700 mt-0.5 mb-3">Research Intern</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">LED 광자 방출 메커니즘을 응용한 고신뢰도 양자 난수 발생기(QRNG) 설계 연구</p>
+                </div>
+                <div class="lg:col-span-2 bg-navy-950 rounded-2xl p-8 text-center text-white flex flex-col items-center justify-center">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4">
+                        <i data-lucide="user-plus" class="w-6 h-6 text-sky-400"></i>
+                    </div>
+                    <h4 class="text-xl font-bold">Join ACE Lab</h4>
+                    <p class="text-sm text-slate-400 mt-2 leading-relaxed">전자기 수치해석 및 스텔스 기술 연구를 함께 수행할<br class="hidden md:block"> 대학원생과 학부연구생을 기다립니다.</p>
+                    <a href="mailto:cspark@kangwon.ac.kr" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 rounded-xl font-bold text-sm transition-colors inline-flex items-center gap-2">
+                        지원 문의하기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section id="contact" class="scroll-mt-24 max-w-6xl mx-auto px-5 md:px-8 py-24 md:py-32">
+            <p class="text-xs font-bold text-blue-700 tracking-[0.25em] uppercase mb-3">Contact</p>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-12">연락처 &amp; 오시는 길</h2>
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden grid lg:grid-cols-2">
+                <div class="p-8 md:p-10 space-y-7">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center shrink-0">
+                            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">Laboratory</p>
+                            <p class="font-semibold text-slate-900">강원대학교 공학4호관 310호</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center shrink-0">
+                            <i data-lucide="briefcase" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">PI Office</p>
+                            <p class="font-semibold text-slate-900">강원대학교 공학4호관 305호</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center shrink-0">
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">Email</p>
+                            <a href="mailto:cspark@kangwon.ac.kr" class="font-semibold text-blue-700 hover:underline">cspark@kangwon.ac.kr</a>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center shrink-0">
+                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">Address</p>
+                            <p class="font-semibold text-slate-900">강원특별자치도 춘천시 강원대학길 1</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 p-10 flex flex-col items-center justify-center text-center">
+                    <div class="w-14 h-14 bg-white border border-slate-200 rounded-xl flex items-center justify-center mb-5 shadow-sm">
+                        <i data-lucide="map-pin" class="w-7 h-7 text-blue-700"></i>
+                    </div>
+                    <p class="font-bold text-slate-900 text-lg mb-1">KNU Engineering Building 4</p>
+                    <p class="text-sm text-slate-500 mb-6">강원대학교 춘천캠퍼스 공학4호관</p>
+                    <a href="https://maps.app.goo.gl/Zk9uCBSjR9oaEW2D6" target="_blank" rel="noopener" class="bg-slate-900 hover:bg-blue-700 text-white px-7 py-3 rounded-xl font-bold text-sm transition-colors inline-flex items-center gap-2">
+                        Google Maps에서 보기 <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===================== PAGE 2 : PUBLICATIONS ===================== -->
+    <div id="publication-page" class="hidden">
+        <header class="bg-navy-950 text-white relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-blue-900"></div>
+            <div class="relative max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20">
+                <button onclick="showPage('home')" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-200 hover:text-white transition-colors mb-6">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> 홈으로 돌아가기
+                </button>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">Publications</h1>
+                <p class="text-slate-300">Applied &amp; Computational Electromagnetics Laboratory</p>
+            </div>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20 space-y-20">
+
+            <!-- International Journals -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">International Journals</h2>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl px-6 md:px-8 divide-y divide-slate-100">
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE Comm. Lett.</span>
+                            <span class="text-xs font-semibold text-slate-400">2026</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">DRL-Based Noncoherent PPM Detection in Time-Varying Wireless Channels</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">J. Choi, H. Kim, Y. Song, J. Park, and <strong class="text-slate-800">C.-S. Park</strong><sup>&dagger;</sup></p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Communications Letters, vol. 30, pp. 2009&ndash;2013</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE AWPL</span>
+                            <span class="text-xs font-semibold text-slate-400">2025</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">An Accelerated GSTC-Based Integral Equation Method Using Characteristic Basis Functions for Metasurface-Based Radar Absorbing Material</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">I. Kim, Y. Yu, <strong class="text-slate-800">C.-S. Park</strong>, I.-P. Hong, and J.-G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Antennas and Wireless Propagation Letters, vol. 24, no. 10</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE Access</span>
+                            <span class="text-xs font-semibold text-slate-400">2023</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Radially Extended 3-D Birdcage Antenna for MRI With Loop-Type Legs and Connection to the Shield</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong><sup>&dagger;</sup>, D. Tihon, F. Jabbarigargari, R. Abdeddaim, and C. Craeye</p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Access, vol. 11, pp. 24822&ndash;24834</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE TAP</span>
+                            <span class="text-xs font-semibold text-slate-400">2020</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Acceleration of Multilevel Characteristic Basis Function Method by Multilevel Multipole Approach</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong>, I. P. Hong, Y. J. Kim, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Transactions on Antennas and Propagation, vol. 68, no. 10, pp. 7109&ndash;7120</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE TAP</span>
+                            <span class="text-xs font-semibold text-slate-400">2018</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Block Size Optimization of CBFM for Scattering Problems</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong>, Y. Jeong, I. Hong, and J. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Transactions on Antennas and Propagation, vol. 66, no. 10, pp. 5370&ndash;5377</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">Hindawi IJAP</span>
+                            <span class="text-xs font-semibold text-slate-400">2018</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Analysis of RCS of Low Observable Aircraft in VHF Band</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">Y. R. Jeong, <strong class="text-slate-800">C.-S. Park</strong>, Y. K. Ko, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">International Journal of Antennas and Propagation, vol. 2018, Art. no. 5435837</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">IEEE AWPL</span>
+                            <span class="text-xs font-semibold text-slate-400">2016</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">A Method of Superposition for Analysis of the Electrically Large Problem Including Many Vehicles</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong>, Y. Jeong, K. Jung, J. Shin, and J. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">IEEE Antennas and Wireless Propagation Letters, vol. 15, pp. 102&ndash;105</p>
+                    </article>
+                </div>
+                <p class="text-xs text-slate-400 mt-3 px-1"><sup>&dagger;</sup> Corresponding author (교신저자)</p>
+            </section>
+
+            <!-- Domestic Journals -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="book" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Domestic Journals</h2>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl px-6 md:px-8 divide-y divide-slate-100">
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">JKIEES</span>
+                            <span class="text-xs font-semibold text-slate-400">2019</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Measurement Method for Monostatic Radar Cross Section of a Scaled Aircraft Model in Non-Anechoic Environment</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">Y. H. Noh, <strong class="text-slate-800">C.-S. Park</strong>, K. J. Kim, Y. H. Jang, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">한국전자파학회논문지 (JKIEES), vol. 30, no. 7, pp. 583&ndash;590</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">JKIEES</span>
+                            <span class="text-xs font-semibold text-slate-400">2019</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Effective Design of Pixel-Type Frequency Selective Surfaces Using an Improved Binary Particle Swarm Optimization Algorithm</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">D. Yang, <strong class="text-slate-800">C.-S. Park</strong>, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">한국전자파학회논문지 (JKIEES)</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">JKIEES</span>
+                            <span class="text-xs font-semibold text-slate-400">2018</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">A Fast Computation Method of Far-Field Interactions in CBFM for Electromagnetic Analysis of Large Structures</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong>, I. P. Hong, O. Kwon, Y. J. Kim, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">한국전자파학회논문지 (JKIEES), vol. 29, no. 9, pp. 701&ndash;706</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">JKIEES</span>
+                            <span class="text-xs font-semibold text-slate-400">2017</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Design of Flexible Reconfigurable Frequency Selective Surface for X-Band Applications</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">I. G. Lee, <strong class="text-slate-800">C.-S. Park</strong>, J. G. Yook, Y. B. Park, H. J. Chun, Y. J. Kim, and I. P. Hong</p>
+                        <p class="text-xs text-slate-400 mt-1">한국전자파학회논문지 (JKIEES)</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">KICS</span>
+                            <span class="text-xs font-semibold text-slate-400">2014</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Superposition Method for the Analysis of Electrically Large Problems Including Many Vehicles</h3>
+                        <p class="text-sm text-slate-500 mt-1.5"><strong class="text-slate-800">C.-S. Park</strong>, Y. R. Jeong, K. Jung, J. Shin, and J. G. Yook</p>
+                        <p class="text-xs text-slate-400 mt-1">한국통신학회논문지 (KICS)</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Conference Papers -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-indigo-700 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Conference Papers</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">EuCAP · 2023 · Florence</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">Asymmetric Use of 8-Legged Conventional Birdcage</h4>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">IEEE CAMA · 2021 · Antibes</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">Correlation Technologies for OTA Testing of Mobile Devices: Power-Density Measurement</h4>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">EuCAP · 2020 · Copenhagen</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">A Nesting Approach for the Numerical Analysis of MRI Birdcage Antennas in the Presence of the Human Head</h4>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">ISAP · 2018</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">A Fast Computation of Far Interactions in MLCBFM for Electromagnetic Analysis of Large Structures</h4>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">APMC · 2018 · Kyoto</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">A New Fitness Function in Binary Particle Swarm Optimization for Efficient Design of Frequency Selective Surfaces</h4>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                        <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">IEEE APS/URSI · 2018</p>
+                        <h4 class="text-sm font-semibold text-slate-800 leading-snug">Acceleration of Reduced Matrix Filling in Near-Field Region for M-CBFM Using 2-Level CBFs</h4>
+                    </div>
+                </div>
+
+                <div id="conf-more" class="expand-list">
+                    <div>
+                        <div class="grid md:grid-cols-2 gap-4 pt-4">
+                            <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                                <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">IEEE APS/URSI · 2018</p>
+                                <h4 class="text-sm font-semibold text-slate-800 leading-snug">Analysis for Contribution of Engine Inlet Structure to Monostatic RCS of Aircraft in the VHF Band</h4>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                                <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">APEMC · 2017 · Seoul</p>
+                                <h4 class="text-sm font-semibold text-slate-800 leading-snug">Analysis of Impedance Matrix Fill-in Time in CBFM Optimization for Large-Scale EMC Problem</h4>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                                <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">EuCAP · 2016 · Davos</p>
+                                <h4 class="text-sm font-semibold text-slate-800 leading-snug">Analysis of Curved Frequency Selective Surface for Radome Using Characteristic Basis Function Method</h4>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-300 transition-colors">
+                                <p class="text-[11px] font-bold text-indigo-600 tracking-wide mb-2">iWAT · 2015 · Seoul</p>
+                                <h4 class="text-sm font-semibold text-slate-800 leading-snug">Registration Sensitivity Study of Double-Layer FSS Design for Radome</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button onclick="toggleMore('conf-more', this)" class="inline-flex items-center gap-2 border border-slate-300 text-slate-700 px-6 py-3 rounded-xl font-bold text-sm hover:border-blue-400 hover:text-blue-700 transition-colors">
+                        학회 실적 더보기 <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Patents -->
+            <section>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-emerald-700 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">Patents</h2>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl px-6 md:px-8 divide-y divide-slate-100">
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <span class="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md">US 등록</span>
+                            <span class="text-xs font-semibold text-slate-400">U.S. Patent 12,032,047 · 2024. 08</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Improved Birdcage Antenna</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">C. Craeye, <strong class="text-slate-800">C.-S. Park</strong>, and D. Tihon</p>
+                        <p class="text-xs text-slate-400 mt-1">출원인: UCLouvain · publ. US 2022/0326324 A1 · PCT WO 2021/069452</p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <span class="text-[11px] font-bold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md">PCT 출원</span>
+                            <span class="text-xs font-semibold text-slate-400">WIPO PCT/EP2023/055631 · 2023</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">Device and Method for Simultaneous Detection of Incident Electric and Magnetic Fields, as well as Energy Crossing a Given Surface</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">S. Wane, C. Craeye, and <strong class="text-slate-800">C.-S. Park</strong></p>
+                    </article>
+                    <article class="py-6">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <span class="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md">KR 등록</span>
+                            <span class="text-xs font-semibold text-slate-400">대한민국 특허 10-2301161 · 2021. 09</span>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 leading-snug">전자기 수치 해석 방법 (Electromagnetic Numerical Analysis Method)</h3>
+                        <p class="text-sm text-slate-500 mt-1.5">Y. Jang, K. Kim, J.-G. Yook, <strong class="text-slate-800">C.-S. Park</strong>, Y. Noh, and B. Kim</p>
+                        <p class="text-xs text-slate-400 mt-1">출원인: 국방과학연구소 (Agency for Defense Development)</p>
+                    </article>
+                </div>
+
+                <div class="mt-16 text-center">
+                    <a href="https://scholar.google.co.kr/citations?user=im_gAZoAAAAJ&hl=ko" target="_blank" rel="noopener" class="inline-flex items-center gap-2.5 bg-slate-900 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold transition-colors">
+                        Google Scholar에서 전체 실적 보기 <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="bg-navy-950 text-slate-400">
+        <div class="max-w-6xl mx-auto px-5 md:px-8 py-14 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-blue-700 rounded-lg flex items-center justify-center text-white">
+                    <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+                </div>
+                <div class="leading-tight">
+                    <span class="block font-extrabold text-white">ACE LAB</span>
+                    <span class="block text-[10px] text-slate-500">Applied &amp; Computational Electromagnetics Lab</span>
+                </div>
+            </div>
+            <p class="text-xs text-center md:text-right leading-relaxed">
+                &copy; 2026 ACE Lab, Kangwon National University. All rights reserved.<br>
+                공학4호관 310호 · <a href="mailto:cspark@kangwon.ac.kr" class="hover:text-white transition-colors">cspark@kangwon.ac.kr</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function showPage(pageId, sectionId = null) {
+            const main = document.getElementById('main-content');
+            const pub = document.getElementById('publication-page');
+            document.getElementById('mobile-menu').classList.add('hidden');
+            if (pageId === 'publications') {
+                main.classList.add('hidden');
+                pub.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                pub.classList.add('hidden');
+                main.classList.remove('hidden');
+                if (sectionId) {
+                    const target = document.getElementById(sectionId);
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function toggleMore(id, btn) {
+            const el = document.getElementById(id);
+            const expanded = el.classList.toggle('expanded');
+            btn.innerHTML = expanded
+                ? '리스트 접기 <i data-lucide="chevron-up" class="w-4 h-4"></i>'
+                : '학회 실적 더보기 <i data-lucide="chevron-down" class="w-4 h-4"></i>';
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
